@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ko" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>고래잇 X 이마트 보물찾기 사전설문 Hub</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emart: {
+                            yellow: '#FFB800',
+                            darkYellow: '#E6A600',
+                            navy: '#0B192C',
+                            accent: '#FF4500'
+                        },
+                        goleat: {
+                            blue: '#0066FF',
+                            lightBlue: '#E6F0FF',
+                            teal: '#00C2A8'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Roboto', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Pretendard alternative via Noto Sans KR -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .card-hover-effect {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover-effect:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .bg-grid-pattern {
+            background-image: radial-gradient(rgba(255, 184, 0, 0.15) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .dark .bg-grid-pattern {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+
+    <!-- Toast Notification Container -->
+    <div id="toast" class="fixed top-5 right-5 z-50 transform translate-y-[-100px] opacity-0 transition-all duration-300 ease-out bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 border border-slate-700 dark:border-slate-300">
+        <i id="toast-icon" class="fas fa-check-circle text-emerald-400 dark:text-emerald-600 text-lg"></i>
+        <span id="toast-msg" class="text-sm font-medium">링크가 클립보드에 복사되었습니다!</span>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-40 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand Logo & Title -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-yellow-400 to-amber-500 flex items-center justify-center text-slate-900 font-extrabold shadow-md shadow-amber-500/20">
+                        <i class="fa-solid fa-gem text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="font-extrabold text-base tracking-tight text-slate-900 dark:text-white">고래잇 <span class="text-amber-500">×</span> 이마트</span>
+                            <span class="text-xs bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 font-bold px-2 py-0.5 rounded-full border border-amber-300/50">보물찾기</span>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">사전 수요조사 및 고객 만족도 센터</p>
+                    </div>
+                </div>
+
+                <!-- Right Actions -->
+                <div class="flex items-center space-x-3">
+                    <!-- Home Button -->
+                    <a href="../index.html" class="inline-flex items-center space-x-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400 bg-slate-100 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-slate-700 px-3.5 py-2 rounded-xl transition shadow-sm">
+                        <i class="fas fa-home text-amber-500"></i>
+                        <span>홈</span>
+                    </a>
+                    <button id="themeToggleBtn" onclick="toggleDarkMode()" class="p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="다크모드 토글">
+                        <i class="fas fa-moon dark:hidden text-lg"></i>
+                        <i class="fas fa-sun hidden dark:inline text-lg text-amber-400"></i>
+                    </button>
+                    <a href="https://docs.google.com/forms" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center space-x-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 bg-slate-100 dark:bg-slate-800 px-3.5 py-2 rounded-xl transition">
+                        <i class="fab fa-google text-amber-500"></i>
+                        <span>구글 폼 안내</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="relative bg-gradient-to-b from-amber-500/10 via-amber-500/5 to-transparent border-b border-slate-200/60 dark:border-slate-800/60 overflow-hidden bg-grid-pattern">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 relative z-10">
+            <div class="max-w-3xl">
+                <div class="inline-flex items-center space-x-2 bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-300 text-xs font-semibold px-3 py-1 rounded-full mb-4">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span>실시간 사전 설문 진행 중</span>
+                </div>
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+                    고래잇 × 이마트 보물찾기<br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-500">설문조사 통합 센터</span>
+                </h1>
+                <p class="mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
+                    고객님의 소중한 의견은 더 즐겁고 혜택 가득한 보물찾기 이벤트를 만드는 데 큰 힘이 됩니다. 아래 항목을 선택하여 설문에 참여해 주세요!
+                </p>
+
+                <!-- Quick Stats Badges -->
+                <div class="mt-6 flex flex-wrap gap-4 text-xs font-medium text-slate-600 dark:text-slate-400">
+                    <div class="flex items-center space-x-2 bg-white dark:bg-slate-800/80 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <i class="fas fa-clipboard-list text-amber-500"></i>
+                        <span>총 <strong>6개</strong>의 설문조사</span>
+                    </div>
+                    <div class="flex items-center space-x-2 bg-white dark:bg-slate-800/80 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <i class="fas fa-clock text-emerald-500"></i>
+                        <span>소요 시간 <strong>약 1~3분</strong></span>
+                    </div>
+                    <div class="flex items-center space-x-2 bg-white dark:bg-slate-800/80 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <i class="fas fa-external-link-alt text-blue-500"></i>
+                        <span>새 창에서 원클릭 접속</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <!-- Controls & Filters -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <!-- Filter Category Tags -->
+            <div class="flex flex-wrap items-center gap-2" id="categoryFilter">
+                <button onclick="filterCategory('all')" class="category-btn active px-4 py-2 rounded-xl text-xs font-semibold bg-amber-500 text-slate-900 shadow-md shadow-amber-500/20 transition-all" data-category="all">
+                    전체 보기 (6)
+                </button>
+                <button onclick="filterCategory('pre')" class="category-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all" data-category="pre">
+                    사전 수요조사 (4)
+                </button>
+                <button onclick="filterCategory('feedback')" class="category-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all" data-category="feedback">
+                    만족도 & 피드백 (2)
+                </button>
+                <button onclick="filterCategory('multi')" class="category-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all" data-category="multi">
+                    다국어 (1)
+                </button>
+            </div>
+
+            <!-- Search Input Box -->
+            <div class="relative w-full md:w-72">
+                <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" id="searchInput" oninput="handleSearch()" placeholder="설문 제목 키워드 검색..." class="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all shadow-sm">
+            </div>
+        </div>
+
+        <!-- Survey Cards Grid -->
+        <div id="surveyGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cards will be populated dynamically by JS -->
+        </div>
+
+        <!-- Empty State Message -->
+        <div id="emptyState" class="hidden text-center py-16">
+            <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400 text-2xl">
+                <i class="fas fa-search-minus"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-800 dark:text-slate-200">검색 결과가 없습니다</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">다른 키워드로 검색하거나 필터를 변경해 보세요.</p>
+            <button onclick="resetFilters()" class="mt-4 px-4 py-2 bg-amber-500 text-slate-900 text-xs font-bold rounded-xl hover:bg-amber-400 transition">
+                검색 및 필터 초기화
+            </button>
+        </div>
+    </main>
+
+    <!-- Quick Preview Modal -->
+    <div id="previewModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm transition-opacity duration-300">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden transform transition-all scale-95 opacity-0" id="modalContent">
+            <div class="p-6">
+                <div class="flex items-start justify-between">
+                    <span id="modalCategory" class="inline-block px-2.5 py-1 text-xs font-bold rounded-lg bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300">카테고리</span>
+                    <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg transition">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+                <h3 id="modalTitle" class="text-lg font-bold text-slate-900 dark:text-white mt-3 leading-snug">설문 제목</h3>
+                <p id="modalDesc" class="text-xs text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">설문 상세 설명</p>
+
+                <div class="mt-6 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 space-y-2 text-xs">
+                    <div class="flex items-center justify-between text-slate-600 dark:text-slate-400">
+                        <span><i class="fas fa-clock mr-2 text-amber-500"></i>예상 소요 시간:</span>
+                        <span class="font-bold text-slate-800 dark:text-slate-200">약 1~2분</span>
+                    </div>
+                    <div class="flex items-center justify-between text-slate-600 dark:text-slate-400">
+                        <span><i class="fas fa-user-check mr-2 text-emerald-500"></i>대상:</span>
+                        <span class="font-bold text-slate-800 dark:text-slate-200">고래잇 X 이마트 이벤트 관심 고객</span>
+                    </div>
+                    <div class="flex items-center justify-between text-slate-600 dark:text-slate-400">
+                        <span><i class="fas fa-external-link-alt mr-2 text-blue-500"></i>플랫폼:</span>
+                        <span class="font-bold text-slate-800 dark:text-slate-200">Google Forms (새 창 열기)</span>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex items-center space-x-3">
+                    <button id="modalCopyBtn" onclick="" class="flex-1 py-3 px-4 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 text-xs transition flex items-center justify-center space-x-2">
+                        <i class="fas fa-copy"></i>
+                        <span>링크 복사</span>
+                    </button>
+                    <a id="modalOpenBtn" href="#" target="_blank" rel="noopener noreferrer" class="flex-1 py-3 px-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold rounded-xl text-xs transition flex items-center justify-center space-x-2 shadow-lg shadow-amber-500/20">
+                        <span>설문 참여하기</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
+                <div class="flex items-center space-x-2">
+                    <span class="font-bold text-slate-800 dark:text-slate-200">고래잇 X 이마트 보물찾기</span>
+                    <span>|</span>
+                    <span>사전설문 공식 게이트웨이</span>
+                </div>
+                <p>© 2026 Goleat x Emart Treasure Hunt Project. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Survey Data Definition
+        const surveys = [
+            {
+                id: 1,
+                title: "[고래잇 X 이마트 보물찾기] 참여 고객 만족도 및 피드백 설문조사",
+                category: "feedback",
+                categoryLabel: "만족도 & 피드백",
+                tagColor: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300/50",
+                desc: "보물찾기 이벤트에 직접 참여하신 고객님의 만족도 및 귀중한 피드백을 수집하여 향후 서비스 및 혜택을 대폭 개선하고자 합니다.",
+                url: "https://docs.google.com/forms/d/e/1FAIpQLSf9KAD8srZMhxJDkiP037oiS7t_nAU0NWQL1qzy55FypQDHBA/viewform",
+                badge: "만족도 조사",
+                icon: "fa-comments"
+            },
+            {
+                id: 2,
+                title: "고래잇 x 이마트 보물찾기 다국어 사전 수요조사",
+                category: "multi",
+                categoryLabel: "다국어 사전조사",
+                tagColor: "bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border-indigo-300/50",
+                desc: "외국인 고객 및 글로벌 이용자를 위해 다국어 보물찾기 서비스 도입 전 사전 니즈와 선호 언어를 파악하는 수요조사입니다.",
+                url: "https://docs.google.com/forms/d/e/1FAIpQLScQCR75vg1XItA9z5Cjn8rR_dAAVuFAJNq6Y-rkOYdYnRZfDg/viewform",
+                badge: "Global Survey",
+                icon: "fa-globe"
+            },
+            {
+                id: 3,
+                title: "[고래잇 × 이마트] 보물찾기 이벤트 사전 수요조사",
+                category: "pre",
+                categoryLabel: "사전 수요조사",
+                tagColor: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border-amber-300/50",
+                desc: "이마트 보물찾기 이벤트 론칭에 앞서 선호하는 쿠폰 혜택, 행사 참여 시간대, 선호 상품군을 사전 파악합니다.",
+                url: "https://docs.google.com/forms/d/e/1FAIpQLSe96FTlaGkrRXYBWgg9JhgGmFTrs2_hHQJL13tV2AiJbjBNzQ/viewform",
+                badge: "사전 수요조사",
+                icon: "fa-map-marked-alt"
+            },
+            {
+                id: 4,
+                title: "[고래잇 x 이마트] 보물찾기 이벤트 만족도 조사",
+                category: "feedback",
+                categoryLabel: "만족도 & 피드백",
+                tagColor: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300/50",
+                desc: "보물찾기 이벤트의 보상 구성, 난이도, 모바일 앱 사용 편리성에 관한 전반적인 만족도를 파악하기 위한 조사입니다.",
+                url: "https://docs.google.com/forms/d/e/1FAIpQLSeb8Ho0s9cRGlp5TnI9tiPwKN_XSCXA4cUlbJ-Yu9IFYvpreg/viewform",
+                badge: "이벤트 평가",
+                icon: "fa-star"
+            },
+            {
+                id: 5,
+                title: "[고래잇] 주말 장보기 보물찾기 이벤트 사전 수요조사",
+                category: "pre",
+                categoryLabel: "사전 수요조사",
+                tagColor: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border-amber-300/50",
+                desc: "주말 이마트 장보기 방문 고객을 위한 맞춤형 주말 특별 보물찾기 혜택 구성 사전 의견을 수렴합니다.",
+                url: "https://docs.google.com/forms/d/e/1FAIpQLScxbb3eofXfCp7mOb7P32C6lvx6tWvfGnntjpA4oIFL3EXE1w/viewform",
+                badge: "주말 장보기",
+                icon: "fa-shopping-cart"
+            },
+            {
+                id: 6,
+                title: "[사전 설문] 아이와 함께하는 이마트 보물찾기 대작전!!! 야~호",
+                category: "pre",
+                categoryLabel: "패밀리 사전설문",
+                tagColor: "bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border-rose-300/50",
+                desc: "아이와 부모가 함께 즐겁게 참여하는 체험형 보물찾기 프로그램에 대한 사전 수요 및 희망 선물/혜택 조사입니다.",
+                url: "https://docs.google.com/forms/d/e/1FAIpQLSfDaQ9e8pocPdhdACR82fbPt__NDaYyFE0fSvJJq_TsAEddWw/viewform",
+                badge: "키즈 & 패밀리",
+                icon: "fa-child"
+            }
+        ];
+
+        let currentCategory = 'all';
+        let searchQuery = '';
+
+        // Render Cards Function
+        function renderCards() {
+            const grid = document.getElementById('surveyGrid');
+            const emptyState = document.getElementById('emptyState');
+            
+            const filteredSurveys = surveys.filter(survey => {
+                const matchesCategory = (currentCategory === 'all') || (survey.category === currentCategory);
+                const matchesSearch = survey.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                      survey.desc.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchesCategory && matchesSearch;
+            });
+
+            if (filteredSurveys.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            grid.innerHTML = filteredSurveys.map(survey => `
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-700/80 shadow-sm card-hover-effect flex flex-col justify-between relative group">
+                    <div>
+                        <!-- Header Badges -->
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold border ${survey.tagColor}">
+                                <i class="fas ${survey.icon} mr-1.5 text-xs"></i> ${survey.badge}
+                            </span>
+                            <span class="inline-flex items-center space-x-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <span>진행중</span>
+                            </span>
+                        </div>
+
+                        <!-- Card Title & Link -->
+                        <a href="${survey.url}" target="_blank" rel="noopener noreferrer" class="block group-hover:text-amber-500 transition-colors">
+                            <h2 class="text-base font-bold text-slate-900 dark:text-white leading-snug tracking-tight">
+                                ${survey.title}
+                            </h2>
+                        </a>
+
+                        <!-- Card Description -->
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2.5 leading-relaxed line-clamp-3">
+                            ${survey.desc}
+                        </p>
+                    </div>
+
+                    <!-- Card Actions -->
+                    <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between gap-2">
+                        <div class="flex items-center space-x-2">
+                            <button onclick="copyToClipboard('${survey.url}')" class="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl text-xs transition" title="링크 복사">
+                                <i class="fas fa-link"></i>
+                            </button>
+                            <button onclick="openPreviewModal(${survey.id})" class="px-3 py-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl text-xs font-semibold transition flex items-center space-x-1">
+                                <i class="fas fa-eye text-xs"></i>
+                                <span>미리보기</span>
+                            </button>
+                        </div>
+
+                        <a href="${survey.url}" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold rounded-xl text-xs transition flex items-center space-x-1.5 shadow-md shadow-amber-500/10 group-hover:shadow-amber-500/30">
+                            <span>설문 이동</span>
+                            <i class="fas fa-arrow-right text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Category Filter Event Handler
+        function filterCategory(category) {
+            currentCategory = category;
+            
+            // Update button styles
+            const buttons = document.querySelectorAll('.category-btn');
+            buttons.forEach(btn => {
+                if (btn.dataset.category === category) {
+                    btn.className = "category-btn active px-4 py-2 rounded-xl text-xs font-semibold bg-amber-500 text-slate-900 shadow-md shadow-amber-500/20 transition-all";
+                } else {
+                    btn.className = "category-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all";
+                }
+            });
+
+            renderCards();
+        }
+
+        // Search Input Event Handler
+        function handleSearch() {
+            searchQuery = document.getElementById('searchInput').value.trim();
+            renderCards();
+        }
+
+        // Reset Filters
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            searchQuery = '';
+            filterCategory('all');
+        }
+
+        // Copy Link to Clipboard
+        function copyToClipboard(text) {
+            const tempInput = document.createElement('input');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            showToast('설문 링크가 클립보드에 복사되었습니다.');
+        }
+
+        // Toast Message Display
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.innerText = message;
+            
+            toast.classList.remove('translate-y-[-100px]', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-[-100px]', 'opacity-0');
+            }, 3000);
+        }
+
+        // Open Modal Preview
+        function openPreviewModal(id) {
+            const survey = surveys.find(s => s.id === id);
+            if (!survey) return;
+
+            document.getElementById('modalCategory').innerText = survey.badge;
+            document.getElementById('modalTitle').innerText = survey.title;
+            document.getElementById('modalDesc').innerText = survey.desc;
+            document.getElementById('modalOpenBtn').href = survey.url;
+            document.getElementById('modalCopyBtn').onclick = () => copyToClipboard(survey.url);
+
+            const modal = document.getElementById('previewModal');
+            const content = document.getElementById('modalContent');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        // Close Modal
+        function closeModal() {
+            const modal = document.getElementById('previewModal');
+            const content = document.getElementById('modalContent');
+
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        // Modal backdrop click close
+        document.getElementById('previewModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Dark Mode Toggle Logic
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Initialize Theme Preference & Render
+        window.onload = function() {
+            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+
+            renderCards();
+        };
+    </script>
+</body>
+</html>
